@@ -1,0 +1,20 @@
+services:
+  db_facturacion:
+    image: mysql:8.0
+    container_name: db_facturacion
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_facturacion
+      MYSQL_USER: facturacion
+      MYSQL_PASSWORD: facturacion2026
+    ports:
+      - "3309:3306"
+    volumes:
+      - db_facturacion_data:/var/lib/mysql
+      - ./init:/docker-entrypoint-initdb.d
+    command: --default-authentication-plugin=mysql_native_password
+
+volumes:
+  db_facturacion_data:
+  
