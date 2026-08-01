@@ -1,4 +1,4 @@
-import 'dotenv/config';
+/*import 'dotenv/config';
 import { pool } from '../src/db/db.js';
 
 try {
@@ -20,5 +20,5 @@ try {
     console.error(error);
 
     process.exit(1);
-}
+} */
 
