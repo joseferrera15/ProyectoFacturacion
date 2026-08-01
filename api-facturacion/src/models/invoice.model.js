@@ -80,4 +80,80 @@ export default class InvoiceModel {
             throw e
         }
     }
+
+    //implementacion del modelo para consultas
+    static findAllForUser = async({userId, role})=>{
+
+        await using conn = await pool.getConnection()
+
+        const query = role === 'ADMIN'
+            ? 'SELECT id, invoice_number, user_id, customer_name, customer_rtn_id, subtotal, tax, total, status, created_at FROM invoices ORDER BY id DESC'
+            : 'SELECT id, invoice_number, user_id, customer_name, customer_rtn_id, subtotal, tax, total, status, created_at FROM invoices WHERE user_id = ? ORDER BY id DESC'
+        
+        const params = role === 'ADMIN' ?[] : [userId]
+        const [rows] = await conn.query( query, params)
+
+        return rows
+    }
+
+    static findById = async (id) =>{
+        await using conn = await pool.getConnection()
+
+        const [invoicerows] = await conn.execute(
+            `SELECT id, invoice_number, user_id, customer_name, customer_rtn_id,
+                subtotal, tax, total, status, created_at
+            FROM invoices WHERE id = ?`,[id]
+
+        )
+
+        const invoice = invoiceRows[0]
+        if(!invoice) return null
+
+        const [detailRows] = await conn.execute(
+            `SELECT d.id, d.product_id, p.name AS product_name, p.code AS product_code,
+                d.quantity, d.unit_price, d.subtotal
+         FROM invoice_details d
+         JOIN products p ON p.id = d.product_id
+         WHERE d.invoice_id = ?`,[id]
+        )
+
+        return { ...invoice, items: detailRows}
+    }
+
+    //Logica para Anulación y Restitución de Inventario
+    static void = async(id) =>{
+
+        await using conn = await pool.getConnection()
+        
+        const [invoiceRows] = await conn.execute(
+             'SELECT id, status FROM invoices WHERE id = ? FOR UPDATE',[id]
+        )
+
+        const invoice = invoiceRows[0]
+
+        if(!invoice){
+            throw new AppError('Factura no encontrada', 404)
+        }
+        if(invoice.status === 'VOIDED'){
+            throw new AppError('La factura ya se encuentra anulada', 400)
+        }
+        const[ detailRows] = await conn.execute(
+            'SELECT product_id, quantity FROM invoice_details WHERE invoice_id = ?',[id]
+        )
+        
+        for(const detail of detailRows){
+            await conn.execute(
+                'UPDATE products SET stock = stock + ? WHERE id = ?',[detail.quantity, detail.product_id]
+            )
+        }
+
+        await conn.execute("UPDATE invoices SET status = 'VOIDED' WHERE id = ?", [id])
+
+        await conn.commit()
+        return InvoiceModel.findById(id)
+    }
+    catch (e){
+        await conn.rollback()
+        throw e
+    }
 }
