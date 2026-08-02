@@ -2,6 +2,9 @@ import express from 'express'
 import 'dotenv/config'
 import authRoutes from './src/routes/auth.routes.js'
 import { jsonResponse } from './src/helpers/json\_response.js'
+import invoiceRouter from './src/routes/invoices.routes.js'
+
+
 
 const app = express()
 app.use(express.json())
@@ -14,8 +17,8 @@ app.get('/', (req, res) => {
 
 app.use('/api/v1/auth', authRoutes)
 
-// (B agrega aquí: app.use('/api/v1/products', productsRouter))
-// (C agrega aquí: app.use('/api/v1/invoices', invoicesRouter))
+app.use('/api/v1/invoices', invoicesRouter)
+//Pendiente el app.use de ProductsRouter
 
 app.use((req, res) => {
     res.status(404).json(jsonResponse({
