@@ -3,7 +3,7 @@ import 'dotenv/config'
 import authRoutes from './src/routes/auth.routes.js'
 import { jsonResponse } from './src/helpers/json\_response.js'
 import invoiceRouter from './src/routes/invoices.routes.js'
-import productsRouter from './src/routes/products.routes.js'
+
 
 
 const app = express()
@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
 app.use('/api/v1/auth', authRoutes)
 
 app.use('/api/v1/invoices', invoicesRouter)
-app.use('/api/v1/products', productsRouter)
+//Pendiente el app.use de ProductsRouter
 
 app.use((req, res) => {
     res.status(404).json(jsonResponse({
