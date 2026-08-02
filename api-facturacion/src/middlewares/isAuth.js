@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import {sonResponse} from '../helpers/json_response.js';
+import {jsonResponse} from '../helpers/json_response.js';
 
 export const isAuth = (req, res, next) => {
 
