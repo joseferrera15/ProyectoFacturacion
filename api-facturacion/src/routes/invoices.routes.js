@@ -1,6 +1,6 @@
 
 import { Router} from "express";
-import { createInvoice, getAllInvoices, getInvoiceById, voidInvoice } from "../controllers/invoice.controller";
+import { createInvoice, getAllInvoices, getInvoiceById, voidInvoice } from "../controllers/invoice.controller.js";
 import {isAuth} from '../middlewares/isAuth.js'
 import { hasRole } from "../middlewares/hasRole.js";
 

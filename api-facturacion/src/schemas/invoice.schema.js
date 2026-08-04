@@ -18,7 +18,7 @@ const invoiceItemSchema = z.object({
 const invoiceSchema = z.object({
 
 customer_name: z.string().min(1).max(150),
-customer_rtn_id: z.string().min(1).max(20).optional.default('CF'),
+customer_rtn_id: z.string().min(1).max(20).optional().default('CF'),
 items: z.array(invoiceItemSchema).min(1,'La factura debe tener al menos un producto.')
 
 }).strict()

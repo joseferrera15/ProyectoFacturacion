@@ -1,9 +1,9 @@
 
-import InvoiceModel from "../models/invoice.model";
+import InvoiceModel from "../models/invoice.model.js";
 import {validateInvoice} from '../schemas/invoice.schema.js'
 import {jsonResponse} from '../helpers/json_response.js'
 import { AppError } from "../helpers/app_error.js";
-import { json } from "zod";
+//import { json } from "zod";
 
 export const createInvoice = async (req, res) =>{
     const {success, data, error} = validateInvoice( req.body)

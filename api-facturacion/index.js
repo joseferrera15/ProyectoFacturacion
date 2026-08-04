@@ -1,8 +1,8 @@
 import express from 'express'
 import 'dotenv/config'
 import authRoutes from './src/routes/auth.routes.js'
-import { jsonResponse } from './src/helpers/json\_response.js'
-import invoiceRouter from './src/routes/invoices.routes.js'
+import { jsonResponse } from './src/helpers/json_response.js'
+import invoicesRouter from './src/routes/invoices.routes.js'
 import productsRouter from './src/routes/products.routes.js'
 
 

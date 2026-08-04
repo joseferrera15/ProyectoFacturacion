@@ -124,26 +124,31 @@ export default class InvoiceModel {
     static void = async(id) =>{
 
         await using conn = await pool.getConnection()
-        
+      try {
+        await conn.beginTransaction()
+
         const [invoiceRows] = await conn.execute(
-             'SELECT id, status FROM invoices WHERE id = ? FOR UPDATE',[id]
+            'SELECT id, status FROM invoices WHERE id = ? FOR UPDATE',[id]
         )
 
         const invoice = invoiceRows[0]
 
-        if(!invoice){
+        if (!invoice) {
             throw new AppError('Factura no encontrada', 404)
         }
-        if(invoice.status === 'VOIDED'){
+
+        if (invoice.status === 'VOIDED') {
             throw new AppError('La factura ya se encuentra anulada', 400)
         }
-        const[ detailRows] = await conn.execute(
+
+        const [detailRows] = await conn.execute(
             'SELECT product_id, quantity FROM invoice_details WHERE invoice_id = ?',[id]
         )
-        
-        for(const detail of detailRows){
+
+        for (const detail of detailRows) {
             await conn.execute(
-                'UPDATE products SET stock = stock + ? WHERE id = ?',[detail.quantity, detail.product_id]
+                'UPDATE products SET stock = stock + ? WHERE id = ?',
+                [detail.quantity, detail.product_id]
             )
         }
 
@@ -151,9 +156,11 @@ export default class InvoiceModel {
 
         await conn.commit()
         return InvoiceModel.findById(id)
-    }
-    catch (e){
+
+    } catch (e) {
         await conn.rollback()
         throw e
+    }
+  
     }
 }
