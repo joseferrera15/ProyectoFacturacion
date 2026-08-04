@@ -46,9 +46,9 @@ CREATE TABLE invoice_details (
 
 -- Registros Iniciales de Prueba (Passwords corresponden a "123456")
 INSERT INTO users (id, name, email, password_hash, role) VALUES
-(1, 'Admin Sistema', 'admin@factura.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6L6s58G8L85aY6Ke', 'ADMIN'),
-(2, 'Cajero Juan', 'juan@factura.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6L6s58G8L85aY6Ke', 'CASHIER'),
-(3, 'Cajera Maria', 'maria@factura.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6L6s58G8L85aY6Ke', 'CASHIER');
+(1, 'Admin Sistema', 'admin@factura.com', '$argon2id$v=19$m=65536,p=4,t=3$CX9sMlNcPpF2lhMacuPPdw$oNP3Hek/KMLrMMyYiHsHwXIrdCmHYythIAtX2MxNEz', 'ADMIN'),
+(2, 'Cajero Juan', 'juan@factura.com', '$argon2id$v=19$m=65536,p=4,t=3$CX9sMlNcPpF2lhMacuPPdw$oNP3Hek/KMLrMMyYiHsHwXIrdCmHYythIAtX2MxNEz', 'CASHIER'),
+(3, 'Cajera Maria', 'maria@factura.com', '$argon2id$v=19$m=65536,p=4,t=3$CX9sMlNcPpF2lhMacuPPdw$oNP3Hek/KMLrMMyYiHsHwXIrdCmHYythIAtX2MxNEz', 'CASHIER');
 
 INSERT INTO products (id, code, name, price, stock, is_active) VALUES
 (1, 'PROD-001', 'Laptop Student 15"', 450.00, 10, TRUE),
