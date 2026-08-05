@@ -81,7 +81,7 @@ export default class InvoiceModel {
                 }
 
             await conn.commit()
-            return Iinvoice;
+            return InvoiceModel.findById(invoiceId);
         }
         catch (e){
             await conn.rollback()

@@ -8,5 +8,5 @@ export const generateInvoiceNumber = async(conn)=>{
 
     const nextSequence = rows[0].total+1
 
-    return `${prefix}${string(nextSequence).padStart(pad_length, '0')}`
+    return `${prefix}${String(nextSequence).padStart(pad_length, '0')}`
 }
