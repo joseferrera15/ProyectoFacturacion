@@ -15,7 +15,7 @@ export const hasRole = (...allowedRoles) => {
         return res.status(403).json(
             jsonResponse({
                 status: 403,
-                message: 'No tiene permisos para acceder a este recurso',
+                message: 'No tiene permisos de ADMIN',
                 data: null
             })
         );
