@@ -9,7 +9,7 @@ const invoicesRouter = Router()
 invoicesRouter.post('/', isAuth, hasRole('CASHIER', 'ADMIN'), createInvoice)
 invoicesRouter.get('/', isAuth, hasRole('CASHIER', 'ADMIN'), getAllInvoices)
 invoicesRouter.get('/:id', isAuth, hasRole('CASHIER', 'ADMIN'), getInvoiceById)
-invoicesRouter.patch( '/id/void', isAuth, hasRole('ADMIN'), voidInvoice)
+invoicesRouter.patch( '/:id/void', isAuth, hasRole('ADMIN'), voidInvoice)
 
 
 export default invoicesRouter

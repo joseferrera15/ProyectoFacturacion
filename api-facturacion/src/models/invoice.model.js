@@ -9,7 +9,8 @@ const tax_rate =  0.15
 export default class InvoiceModel {
 
     static create = async ({userId, customerName, customerRtnId, items})=>{
-        await using conn = await pool.getConnection()
+        
+        const conn = await pool.getConnection()
 
 
         try{
@@ -38,24 +39,32 @@ export default class InvoiceModel {
                 const unitPrice = Number(product.price)
 
                 //Este es el  subtotal de linea
-                const lineaSubtotal = Number((unitPrice * itemquantity).toFixed(2))
+                const lineSubtotal = Number((unitPrice * item.quantity).toFixed(2))
 
+                resolvedItems.push({
+                    productId: product.id,
+                    quantity: item.quantity,
+                    unitPrice,
+                    lineSubtotal
+                })
+            
+            }
                 //Calculo de subtotal de toda la factura
-                const subtotal =Number(resolvedItems.reduce((acumulador, item) => acumulador+item.lineaSubtotal, 0).toFixed(2))
+                const subtotal =Number(resolvedItems.reduce((acumulador, item) => acumulador+item.lineSubtotal, 0).toFixed(2))
                 //calculo del impuesto 
                 const tax = Number((subtotal * tax_rate).toFixed(2))
                 //Calculo del total de factura.
                 const total = Number((subtotal + tax).toFixed(2))
 
                 ///Logica para generar el correlativo  de la factura
-                const invoicenNumber = await generateInvoiceNumber(conn)
+                const invoiceNumber = await generateInvoiceNumber(conn)
 
                 const [invoiceResult] = await conn.execute(
-                     `INSERT INTO invoices
+                    `INSERT INTO invoices
                         (invoice_number, user_id, customer_name, customer_rtn_id, subtotal, tax, total)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)`,[invoicenNumber, userId, customerName, customerRtnId, subtotal, tax, total]
+                    VALUES (?, ?, ?, ?, ?, ?, ?)`,[invoiceNumber, userId, customerName, customerRtnId, subtotal, tax, total]
                 )
-                const invoiceId = invoiceId.insertId
+                const invoiceId = invoiceResult.insertId
 
                 //Logica para insertar el detalle y decrementar el stock.
 
@@ -68,23 +77,27 @@ export default class InvoiceModel {
                     await conn.execute(
                         'UPDATE products SET stock = stock - ? WHERE id = ?',[item.quantity, item.productId]
                     )
+                    
                 }
 
-            }
-
             await conn.commit()
-            return InvoiceModel.findById(invoiceId)
+            return Iinvoice;
         }
         catch (e){
             await conn.rollback()
             throw e
+        }
+        finally{
+            conn.release()
         }
     }
 
     //implementacion del modelo para consultas
     static findAllForUser = async({userId, role})=>{
 
-        await using conn = await pool.getConnection()
+        const conn = await pool.getConnection()
+
+        try{
 
         const query = role === 'ADMIN'
             ? 'SELECT id, invoice_number, user_id, customer_name, customer_rtn_id, subtotal, tax, total, status, created_at FROM invoices ORDER BY id DESC'
@@ -93,13 +106,16 @@ export default class InvoiceModel {
         const params = role === 'ADMIN' ?[] : [userId]
         const [rows] = await conn.query( query, params)
 
-        return rows
+        return rows;
+        }
+        finally{
+        conn.release()
+        }
     }
-
     static findById = async (id) =>{
-        await using conn = await pool.getConnection()
-
-        const [invoicerows] = await conn.execute(
+        const conn = await pool.getConnection()
+        try{
+        const [invoiceRows] = await conn.execute(
             `SELECT id, invoice_number, user_id, customer_name, customer_rtn_id,
                 subtotal, tax, total, status, created_at
             FROM invoices WHERE id = ?`,[id]
@@ -112,19 +128,21 @@ export default class InvoiceModel {
         const [detailRows] = await conn.execute(
             `SELECT d.id, d.product_id, p.name AS product_name, p.code AS product_code,
                 d.quantity, d.unit_price, d.subtotal
-         FROM invoice_details d
-         JOIN products p ON p.id = d.product_id
-         WHERE d.invoice_id = ?`,[id]
+            FROM invoice_details d
+            JOIN products p ON p.id = d.product_id
+            WHERE d.invoice_id = ?`,[id]
         )
 
         return { ...invoice, items: detailRows}
+    }finally{
+        conn.release()
     }
-
+}
     //Logica para Anulación y Restitución de Inventario
     static void = async(id) =>{
 
-        await using conn = await pool.getConnection()
-      try {
+        const conn = await pool.getConnection()
+        try {
         await conn.beginTransaction()
 
         const [invoiceRows] = await conn.execute(
@@ -160,7 +178,8 @@ export default class InvoiceModel {
     } catch (e) {
         await conn.rollback()
         throw e
+    }finally {
+        conn.release()
     }
-  
     }
 }

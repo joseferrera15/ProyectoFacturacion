@@ -54,9 +54,9 @@ export const getInvoiceById = async (req, res) =>{
 
         if(!invoice){
 
-            return res.status(404).json(jsonResponse({ status: 400, message: 'Factura no encontrada', data: null}))
+            return res.status(404).json(jsonResponse({ status: 404, message: 'Factura no encontrada', data: null}))
         }
-        if(req.user.role !== 'ADMIN'&& invoice.user.id !== req.user.id){
+        if(req.user.role !== 'ADMIN'&& invoice.user_id !== req.user.id){
             return res.status(403).json(jsonResponse({
                 status: 403 , message: 'No tiene permisos para ver esta factura', data: null
             }))
